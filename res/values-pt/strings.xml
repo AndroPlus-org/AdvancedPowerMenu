@@ -64,7 +64,6 @@
 	<string name="remove_airplane_summ">Remove o seletor original de modo avião se ele existir</string>
 	
 	<string name="sect_debug">Opções do Aplicativo</string>
-	<string name="verbose_lg_title">Log verboso</string>
 	<string name="verbose_log_summ">Escreve logs completos em /data/xposed/debug.log</string>
 	<string name="hide_ic_launcher_title">Ocultar ícone do launcher</string>
 	<string name="hide_ic_launcher_dialog">Você precisa reiniciar o launcher para as mudanças surtirem efeito.\nEntão, você pode acessar o Advanced Power Menu através do Instalador do Xposed > Modulos > Advanced Power Menu (Pressione o item ao invés da caixa de seleção).</string>

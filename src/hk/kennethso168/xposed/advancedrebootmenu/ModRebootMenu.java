@@ -53,6 +53,7 @@ public class ModRebootMenu {
     private static String mRebootSoftStr;
     private static String mRecoveryStr;
     private static String mBootloaderStr;
+    private static String mFlashmodeStr;
     private static String mRebootSystem1Str;
     private static String mRebootSystem2Str;
     private static String mScreenshotLabel;
@@ -66,6 +67,7 @@ public class ModRebootMenu {
     private static Drawable mRebootSoftIcon;
     private static Drawable mRecoveryIcon;
     private static Drawable mBootloaderIcon;
+    private static Drawable mFlashmodeIcon;
     private static Drawable mScreenshotIcon;
     private static Drawable mQuickDialIcon;
     private static Drawable mExpandStatusBarIcon;
@@ -97,6 +99,8 @@ public class ModRebootMenu {
     private static String mRebootSoftCmd = 
     		"setprop ctl.restart surfaceflinger\n" +
     		"setprop ctl.restart zygote\n";
+    private static String mRebootFlashmodeCmd = 
+    		"su -c toolbox reboot oem-53\n";
     private static String mPowerOffCmd = "reboot -p\n";
     
     //constants for reboot sub-menu sequence
@@ -106,6 +110,7 @@ public class ModRebootMenu {
     private static final int SEQ_REBOOT_BOOTLOADER = 3;
     private static final int SEQ_REBOOT_SYSTEM1 = 4;
     private static final int SEQ_REBOOT_SYSTEM2 = 5;
+    private static final int SEQ_REBOOT_FLASHMODE = 6;
     
     //constants for modes of showing confirmation dialogs
     private static final int VALUE_ENABLE_DIALOGS = 0;
@@ -144,6 +149,7 @@ public class ModRebootMenu {
                    mRebootSoftStr = armRes.getString(R.string.reboot_soft);
                    mRecoveryStr = armRes.getString(R.string.reboot_recovery);
                    mBootloaderStr = armRes.getString(R.string.reboot_bootloader);
+                   mFlashmodeStr = armRes.getString(R.string.reboot_flash);
                    mRebootSystem1Str = armRes.getString(R.string.reboot_system1);
                    mRebootSystem2Str = armRes.getString(R.string.reboot_system2);
                    
@@ -170,6 +176,7 @@ public class ModRebootMenu {
                    int[] mRebootSoftIconSet = {R.drawable.ic_lock_reboot_soft, R.drawable.ic_lock_reboot_soft_dark, R.drawable.ic_lock_reboot_soft_color, R.drawable.ic_lock_reboot_soft_existenz};
                    int[] mRecoveryIconSet = {R.drawable.ic_lock_recovery, R.drawable.ic_lock_recovery_dark, R.drawable.ic_lock_recovery_color, R.drawable.ic_lock_recovery_existenz};
                    int[] mBootloaderIconSet = {R.drawable.ic_lock_reboot_bootloader, R.drawable.ic_lock_reboot_bootloader_dark, R.drawable.ic_lock_reboot_bootloader_color, R.drawable.ic_lock_reboot_bootloader_existenz};
+                   int[] mFlashmodeIconSet = {R.drawable.ic_lock_reboot_flashmode, R.drawable.ic_lock_reboot_flashmode_dark, R.drawable.ic_lock_reboot_flashmode_color, R.drawable.ic_lock_reboot_flashmode_existenz};
                    int[] mExpandStatusBarIconSet = {R.drawable.ic_expand_statusbar, R.drawable.ic_expand_statusbar_dark, R.drawable.ic_expand_statusbar_color, R.drawable.ic_expand_statusbar_existenz};
                    int[] mToggleDataIconSet = {R.drawable.ic_data, R.drawable.ic_data_dark, R.drawable.ic_data_color, R.drawable.ic_data_existenz};
                    int[] mDeviceLockedIconSet = {R.drawable.ic_device_locked, R.drawable.ic_device_locked_dark, R.drawable.ic_device_locked_color, R.drawable.ic_device_locked_existenz};
@@ -187,12 +194,14 @@ public class ModRebootMenu {
                    mRebootSoftIcon = armRes.getDrawable(mRebootSoftIconSet[IconColorInt]);
                    mRecoveryIcon = armRes.getDrawable(mRecoveryIconSet[IconColorInt]);
                    mBootloaderIcon = armRes.getDrawable(mBootloaderIconSet[IconColorInt]);
+                   mFlashmodeIcon = armRes.getDrawable(mFlashmodeIconSet[IconColorInt]);
                    mPowerOffIcon = armRes.getDrawable(R.drawable.ic_wip); //as a fallback
 
                    antiTheftHelperOn = pref.getBoolean("pref_no_locked_off", false);
                    boolean SoftEnabled = pref.getBoolean("pref_rebootsub_soft", true);
                    boolean RecoveryEnabled = pref.getBoolean("pref_rebootsub_recovery", true);
                    boolean BootloaderEnabled = pref.getBoolean("pref_rebootsub_bootloader", true);
+                   boolean FlashmodeEnabled = pref.getBoolean("pref_rebootsub_flashmode", true);
                    boolean prefSystem12Enabled = pref.getBoolean("pref_rebootsub_system12", false);
                    log("pref_rebootsub_system12 = " + prefSystem12Enabled);
                    boolean System2Enabled = false;
@@ -223,6 +232,11 @@ public class ModRebootMenu {
                    if(BootloaderEnabled){
                 	   mRebootItemList.add(new BasicIconListItem(mBootloaderStr, null, mBootloaderIcon, null));
                 	   rebootSubMenu[cnt] = SEQ_REBOOT_BOOTLOADER;
+                	   cnt++;
+                   }
+                   if(FlashmodeEnabled){
+                	   mRebootItemList.add(new BasicIconListItem(mFlashmodeStr, null, mFlashmodeIcon, null));
+                	   rebootSubMenu[cnt] = SEQ_REBOOT_FLASHMODE;
                 	   cnt++;
                    }
                    if(System1Enabled&&DualBoot.supportsDualboot()){
@@ -615,6 +629,15 @@ public class ModRebootMenu {
         	} catch (Exception e) {
         			XposedBridge.log(e);
         	}   
+        } else if (mode == SEQ_REBOOT_FLASHMODE) {
+        	try {
+        		Process proc = Runtime.getRuntime().exec("sh");
+        		DataOutputStream stdin = new DataOutputStream(proc.getOutputStream()); 
+        		stdin.writeBytes(mRebootFlashmodeCmd);
+        		
+        	} catch (Exception e) {
+        			XposedBridge.log(e);
+        	} 
         } else if (mode == SEQ_REBOOT_RECOVERY) {
         	Process p;
         	try {
